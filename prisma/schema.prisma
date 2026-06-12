@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+  moduleFormat="esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+//student table
+model Student {
+  id        Int      @id @default(autoincrement())
+  name      String
+  age       Int
+  email     String   @unique
+  // for darabase column reuse use @map
+  rollNo    Int @map("roll_no") @unique
+  departmentId Int @map("department_id") //foreign key reference to department table
+  department Department @relation(fields: [departmentId],references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+  enrollments Enrollment[] // 1 student has many enrollments
+  // for costom table name use @@map
+  @@map("students") 
+
+}
+model Department {
+  id        Int  @id @default(autoincrement())
+  name      String @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+  teachers Teacher[] // 1 department has many teachers
+  students Student[] // 1 department has many students
+  @@map("departments") 
+}
+// model for course 
+model Course {
+  id        Int  @id @default(autoincrement())
+  name      String @unique
+  credit Float
+  teacherId Int @map("teacher_id") //foreign key reference to teacher table
+  teacher Teacher @relation(fields: [teacherId],references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+  enrollments Enrollment[] // 1 course has many enrollments
+  @@map("courses") 
+}
+//model for enrollment
+model Enrollment {
+  id        Int    @id @default(autoincrement())
+  studentId  Int @map("student_id") //foreign key reference to student table
+  student Student @relation(fields: [studentId],references: [id])
+  courseId   Int @map("course_id")
+  course Course @relation(fields: [courseId],references: [id])
+  enrolledAt DateTime @default(now())
+  status    String @default("Active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+  @@unique([studentId, courseId]) // to ensure a student can enroll in a course only once
+  @@map("enrollments")      
+}     
+
+
+
+
+
+
+
+
+
+
+
+// model for teacher 
+model Teacher {
+  id        Int      @map("teacher_id") @id @default(autoincrement())
+  name      String
+  email    String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+  departmentId Int @map("department_id") //foreign key reference to department table
+  department Department @relation(fields: [departmentId],references: [id])
+  courses Course[] // 1 teacher has many courses
+  @@map("teachers") // 1 teacher belongs to 1 department 
+}

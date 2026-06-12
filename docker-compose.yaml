@@ -1,0 +1,13 @@
+version: "3.8"
+services: 
+  postgresql:
+    image: postgres:latest
+    restart: always
+    container_name: sandeep-kalathoki-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      postgres_host: ${postgres_host}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
